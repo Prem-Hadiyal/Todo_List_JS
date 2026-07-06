@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>📒 Todo List</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <div class="header">
+        <h1>My Tasks</h1>
+        <p><span class="count" id="taskCount">0</span> tasks in your list</p>
+      </div>
+
+      <div class="input-panel" id="inputPanel">
+        <div class="input-panel-inner">
+          <textarea
+            id="taskInput"
+            placeholder="What do you need to do?"
+            maxlength="140"
+            rows="3"
+          ></textarea>
+          <button id="confirmAdd">Add</button>
+        </div>
+      </div>
+
+      <div class="add-row">
+        <button id="addBtn">+ ADD</button>
+      </div>
+
+      <div class="task-container">
+        <div class="task-list" id="taskList"></div>
+      </div>
+    </div>
+
+    <script src="index.js"></script>
+  </body>
+</html>
