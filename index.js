@@ -5,13 +5,45 @@ var confirmAdd = document.getElementById('confirmAdd');
 var taskList = document.getElementById('taskList');
 var taskCount = document.getElementById('taskCount');
 
-
-addBtn.addEventListener('click', toggleAddBox);
 confirmAdd.addEventListener('click', addTask);
+addBtn.addEventListener('click', toggleAddBox);
 
+taskInput.addEventListener('keydown', function (event) {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    addTask();
+  }
+});
 
 var tasks = [];
 var nextId = 1;
+
+// store our tasks in localStorage
+var STORAGE_KEY = 'myTodoTasks';
+
+// local storage function
+function saveTasksToStorage() {
+  var tasksAsText = JSON.stringify(tasks);
+  localStorage.setItem(STORAGE_KEY, tasksAsText);
+}
+
+
+function loadTasksFromStorage() {
+  var savedText = localStorage.getItem(STORAGE_KEY);
+
+  if (savedText === null) {
+    return;
+  }
+
+  var savedTasks = JSON.parse(savedText);
+  tasks = savedTasks;
+
+  for (var i = 0; i < tasks.length; i++) {
+    if (tasks[i].id >= nextId) {
+      nextId = tasks[i].id + 1;
+    }
+  }
+}
 
 var isInputOpen = false;
 function toggleAddBox() {
@@ -31,7 +63,6 @@ function toggleAddBox() {
   }
 }
 
-
 function addTask() {
 
   var taskText = taskInput.value.trim();
@@ -50,18 +81,12 @@ function addTask() {
   tasks.push(newTask);
   taskInput.value = '';
 
+  saveTasksToStorage();
   showTasks();
 }
 
-taskInput.addEventListener('keydown', function (event) {
-  if (event.key === 'Enter' && !event.shiftKey) {
-    event.preventDefault();
-    addTask();
-  }
-});
-
-
 function deleteTask(taskId) {
+
   var updatedTasks = [];
 
   for (var i = 0; i < tasks.length; i++) {
@@ -72,18 +97,19 @@ function deleteTask(taskId) {
 
   tasks = updatedTasks;
 
+  saveTasksToStorage();
   showTasks();
 }
-
 
 function editTask(taskId) {
 
   var taskRow = document.querySelector('[data-row-id="' + taskId + '"]');
   var textSpan = taskRow.querySelector('.task-text');
 
+  // current text before we remove the span
   var currentText = textSpan.textContent;
 
-  // create a text area & replace the span
+  // create a text area to replace the span
   var editBox = document.createElement('textarea');
   editBox.className = 'task-text editing';
   editBox.value = currentText;
@@ -106,6 +132,7 @@ function editTask(taskId) {
       }
     }
 
+    saveTasksToStorage();
     showTasks();
   }
 
@@ -122,11 +149,14 @@ function editTask(taskId) {
   editBox.addEventListener('blur', saveEdit);
 }
 
+
 function showTasks() {
 
   taskCount.textContent = tasks.length;
+
   taskList.innerHTML = '';
 
+  // no tasks then show empty message
   if (tasks.length === 0) {
     var emptyMessage = document.createElement('div');
     emptyMessage.className = 'empty-state';
@@ -146,7 +176,7 @@ function showTasks() {
     taskRow.className = 'task-item';
     taskRow.setAttribute('data-row-id', task.id);
 
-    // left side: task text
+    // left side: the task text
     var taskTextEl = document.createElement('span');
     taskTextEl.className = 'task-text';
     taskTextEl.textContent = task.text;
@@ -158,7 +188,7 @@ function showTasks() {
     // edit button
     var editBtn = document.createElement('button');
     editBtn.className = 'icon-btn edit-btn';
-    editBtn.textContent = '✏️';
+    editBtn.textContent = '✎';
     editBtn.title = 'Edit task';
     editBtn.setAttribute('data-id', task.id);
 
@@ -170,7 +200,7 @@ function showTasks() {
     // delete button
     var deleteBtn = document.createElement('button');
     deleteBtn.className = 'icon-btn delete-btn';
-    deleteBtn.textContent = '❌';
+    deleteBtn.textContent = '✕';
     deleteBtn.title = 'Delete task';
     deleteBtn.setAttribute('data-id', task.id);
 
@@ -179,17 +209,15 @@ function showTasks() {
       deleteTask(clickedTaskId);
     });
 
-    // put the buttons inside the actions box
     actionsBox.appendChild(editBtn);
     actionsBox.appendChild(deleteBtn);
 
-    // put the text and the actions box inside the row
     taskRow.appendChild(taskTextEl);
     taskRow.appendChild(actionsBox);
 
-    // finally, add the row to the visible list
     taskList.appendChild(taskRow);
   }
 }
 
+loadTasksFromStorage();
 showTasks();
